@@ -1,17 +1,32 @@
-# acl_flutter
+# PROYECTO DE FLUTTER LOCAL
+Proyecto de Flutter en NixOs para crear apps y desarrollar esas cuestiones
 
-A new Flutter project.
+Esta mierda es un asco
 
-## Getting Started
+## INSTALACION
 
-This project is a starting point for a Flutter application.
+```console
+git clone https://github.com/ArielParedesLozada/ac_flutter.git
+cd acl_flutter
+nix develop
+```
 
-A few resources to get you started if this is your first Flutter project:
+## EJECUCION
+Para ejecutar el sistema, primero se levanta el flake.
+```console
+nix develop
+# Una vez se este en la consola de Nix, se puede hacer todo lo demas
+run-emulator # Ejecuta el emulador de Android
+flutter run -d emulator-5554 # El emulador de Android que se esta ejecutando
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+*Nota*: La ejecucion de Android con Flutter es un *infierno* para la CPU. Solo se deberia utilizar el entorno de Android cuando sea estrictamente necesario, como para revisar funciones nativas (local_auth, etc...)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## COSAS PARA ELIMINAR
+Estos son los archivos generados por **Nix** y donde se guarda el cache de la aplicacion. Deberian borrarse para no gastar espacio tras acabar con el desarrollo
+```console
+rm -rf .android
+rm -rf .dart_tool
+rm -rf .env
+rm -rf ~/.android # No tengo idea de como llego aqui, pero bueno
+```
