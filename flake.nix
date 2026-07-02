@@ -323,7 +323,7 @@
             export ANDROID_USER_HOME="$PROJECT_ENV/android"
             export ANDROID_EMULATOR_HOME="$PROJECT_ENV/android/emulator"
             export ANDROID_AVD_HOME="$PROJECT_ENV/android/avd"
-            export ANDROID_SDK_HOME="$PROJECT_ENV/android"
+            # export ANDROID_SDK_HOME="$PROJECT_ENV/android"
             export GRADLE_USER_HOME="$PROJECT_ENV/gradle"
             export FLUTTER_ROOT_OVERRIDE=""      # placeholder, no crítico
             export _JAVA_OPTIONS="-Djava.util.prefs.userRoot=$PROJECT_ENV/java -Djava.util.prefs.systemRoot=$PROJECT_ENV/java"
