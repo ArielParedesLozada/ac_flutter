@@ -7,7 +7,7 @@ class AuthService {
   Future<bool> authenticate() async {
     final bool deviceSupported = await _localAuthentication.isDeviceSupported();
     if (!deviceSupported) {
-      return true;
+      return false;
     }
     try {
       return await _localAuthentication.authenticate(

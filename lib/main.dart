@@ -18,7 +18,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   final AuthService _authService = AuthService();
-  AuthState _authState = AuthState.unknown;
+  AuthState _authState = AuthState.authenticated; // Lo cambio para probar las funciones sin tener que utilizar el emulador
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _MainAppState extends State<MainApp> {
         );
       case AuthState.authenticated:
         return const MaterialApp(
-          title: "Named routes",
+          title: "Homepage",
           home: HomePage(),
         );
       case AuthState.notAuthenticated:
