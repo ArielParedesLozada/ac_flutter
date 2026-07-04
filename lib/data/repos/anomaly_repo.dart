@@ -6,4 +6,6 @@ abstract class AnomalyRepo {
   @Query('SELECT * FROM anomalies')
   Future<List<AnomalyDb>> getAllAnomalies();
   
+  @Query('SELECT * FROM anomalies WHERE id > :lastId ORDER BY id LIMIT :limit')
+  Future<List<AnomalyDb>> getPagedAnomalies(int lastId, int limit);
 }

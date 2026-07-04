@@ -11,9 +11,10 @@ part 'database.g.dart';
 abstract class AppDatabase extends FloorDatabase {
   AnomalyRepo get anomalyRepo;
 
-  static Future<AppDatabase> init() async {
-    return await $FloorAppDatabase
-        .databaseBuilder('app_database.db') // Debe estar en un .db en la raiz del proyecto 
-        .build();
+  static Future<AppDatabase>? _instance;
+
+  static Future<AppDatabase> get instance {
+    _instance ??= $FloorAppDatabase.databaseBuilder('app_database.db').build();
+    return _instance!;
   }
 }
