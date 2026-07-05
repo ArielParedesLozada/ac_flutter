@@ -18,6 +18,9 @@ abstract class AnomalyRepo {
   @Query('SELECT * FROM anomalies WHERE name LIKE :name')
   Future<List<AnomalyDb>> getAnomaliesByName(String name);
 
+  @Query('SELECT * FROM anomalies WHERE name LIKE :query OR code LIKE :query OR nameSearch LIKE :query')
+  Future<List<AnomalyDb>> searchAnomalies(String query);
+
   @Insert(onConflict: OnConflictStrategy.abort)
   Future<int> createAnomaly(AnomalyDb anomaly);
 }

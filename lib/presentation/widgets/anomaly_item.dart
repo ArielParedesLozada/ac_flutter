@@ -8,17 +8,14 @@ class AnomalyItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(5.0),
       child: Container(
         color: Colors.blue[50],
         child: ListTile(
           leading: const Icon(Icons.account_circle),
-          title: Text(
-            "${anomaly.type.name.toUpperCase()}${anomaly.type.index}_${anomaly.code}",
-          ),
-          trailing: const Icon(Icons.done),
+          title: Text(anomaly.nameSearch),
+          trailing: const Icon(Icons.keyboard_arrow_down),
           subtitle: Text(anomaly.name ?? ''),
-          hoverColor: Colors.blue[50],
           onTap: () {},
         ),
       ),

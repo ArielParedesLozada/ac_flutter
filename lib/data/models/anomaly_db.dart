@@ -22,6 +22,8 @@ class AnomalyDb {
   final int hostility;
   @ColumnInfo(name: 'info')
   final int info;
+  @ColumnInfo(name: 'nameSearch')
+  final String nameSearch;
   @ColumnInfo(name: 'name')
   final String? name;
   @ColumnInfo(name: 'phone')
@@ -41,6 +43,7 @@ class AnomalyDb {
     required this.disruption,
     required this.hostility,
     required this.info,
+    required this.nameSearch,
     this.latitude,
     this.longitude,
     this.name,

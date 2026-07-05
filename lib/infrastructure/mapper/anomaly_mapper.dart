@@ -12,6 +12,7 @@ class AnomalyMapper {
       disruption: AnomalyDisruption.values[anomaly.disruption],
       hostility: AnomalyHostility.values[anomaly.hostility],
       info: AnomalyInfo.values[anomaly.info],
+      nameSearch: anomaly.nameSearch,
       name: anomaly.name,
       phone: anomaly.phone,
       coordinates: anomaly.latitude != null && anomaly.longitude != null
@@ -33,6 +34,7 @@ class AnomalyMapper {
       disruption: anomaly.disruption.index,
       hostility: anomaly.hostility.index,
       info: anomaly.info.index,
+      nameSearch: anomaly.nameSearch,
       name: anomaly.name,
       phone: anomaly.phone,
       latitude: anomaly.coordinates?.latitude,

@@ -8,6 +8,7 @@ class Anomaly {
   final AnomalyDisruption disruption;
   final AnomalyHostility hostility;
   final AnomalyInfo info;
+  final String nameSearch;
   final String? name;
   final String? phone;
   final Coordinates? coordinates;
@@ -21,6 +22,7 @@ class Anomaly {
     required this.disruption,
     required this.hostility,
     required this.info,
+    required this.nameSearch,
     this.coordinates,
     this.name,
     this.phone,

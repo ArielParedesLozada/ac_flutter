@@ -2,7 +2,6 @@ import 'package:acl_flutter/app/anomaly_service.dart';
 import 'package:acl_flutter/domain/models/anomaly.dart';
 import 'package:acl_flutter/presentation/widgets/anomaly_form.dart';
 import 'package:acl_flutter/presentation/widgets/anomaly_item.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:flutter/material.dart';
 
 class AnomaliesPage extends StatefulWidget {
@@ -14,21 +13,26 @@ class AnomaliesPage extends StatefulWidget {
 
 class _TestPageState extends State<AnomaliesPage> {
   final AnomalyService anomalyService = AnomalyService();
-  late final _pagingController = PagingController<int, Anomaly>(
-    getNextPageKey: (state) => state.pages?.last.lastOrNull?.id ?? 0,
-    fetchPage: (pageKey) => nextPage(pageKey), // Callback to fetch data
-  );
+  late Future<List<Anomaly>> _future;
 
   @override
   void initState() {
     super.initState();
+    _future = anomalyService.getAnomalies();
+  }
+
+  void _refresh() {
+    setState(() {
+      _future = anomalyService.getAnomalies();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Muestra a anomalias"),
+        title: const Text("Anomalías registradas"),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
@@ -44,61 +48,51 @@ class _TestPageState extends State<AnomaliesPage> {
         label: const Text('Agregar'),
         onPressed: showAnomalyForm,
       ),
-      body: Center(
-        child: PagingListener(
-          controller: _pagingController,
-          builder: (context, state, fetchNextPage) =>
-              PagedListView<int, Anomaly>(
-                state: state,
-                fetchNextPage: fetchNextPage,
-                builderDelegate: PagedChildBuilderDelegate(
-                  itemBuilder: (context, item, index) => Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.lightBlue),
-                    ),
-                    child: AnomalyItem(anomaly: item),
-                  ),
-                ),
-              ),
-        ),
+      body: FutureBuilder<List<Anomaly>>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final anomalies = snapshot.data!;
+          if (anomalies.isEmpty) {
+            return const Center(child: Text('No hay anomalías registradas'));
+          }
+          return ListView.builder(
+            itemCount: anomalies.length,
+            itemBuilder: (context, index) => Container(
+              padding: const EdgeInsets.all(5),
+              child: AnomalyItem(anomaly: anomalies[index]),
+            ),
+          );
+        },
       ),
     );
-  }
-
-  Future<List<Anomaly>> nextPage(int page) async {
-    int pageSize = 10;
-    List<Anomaly> list = await anomalyService.getPagedAnomalies(page, pageSize);
-    return list;
   }
 
   void showAnomalyForm() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text("Registra una anomalia"),
         content: SingleChildScrollView(
           child: AnomalyForm(
             onSubmit: (dto) async {
               await anomalyService.createAnomaly(dto);
-              if (mounted) Navigator.pop(context);
+              if (!context.mounted) return;
+              Navigator.pop(dialogContext);
+              _refresh();
             },
           ),
         ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _pagingController.dispose();
-    super.dispose();
-  }
 }
 
 class _CustomSearchDelegate extends SearchDelegate {
   final AnomalyService anomalyService = AnomalyService();
+
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -106,7 +100,7 @@ class _CustomSearchDelegate extends SearchDelegate {
         onPressed: () {
           query = '';
         },
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
       ),
     ];
   }
@@ -117,14 +111,14 @@ class _CustomSearchDelegate extends SearchDelegate {
       onPressed: () {
         close(context, null);
       },
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder<List<Anomaly>>(
-      future: anomalyService.getAnomalyByName(query),
+      future: anomalyService.searchAnomalies(query),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -141,7 +135,7 @@ class _CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     return FutureBuilder<List<Anomaly>>(
-      future: anomalyService.getAnomalyByName(query),
+      future: anomalyService.searchAnomalies(query),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());

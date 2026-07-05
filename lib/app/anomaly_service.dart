@@ -40,6 +40,12 @@ class AnomalyService {
     return anomaliesDb.map(AnomalyMapper.fromDb).toList();
   }
 
+  Future<List<Anomaly>> searchAnomalies(String query) async {
+    final db = await AppDatabase.instance;
+    final anomaliesDb = await db.anomalyRepo.searchAnomalies('%$query%');
+    return anomaliesDb.map(AnomalyMapper.fromDb).toList();
+  }
+
   Future<Anomaly?> createAnomaly(AnomalyCreateDto anomalyCreateDto) async {
     const int bottom = 100;
     const int top = 1000;
@@ -49,36 +55,46 @@ class AnomalyService {
     int code;
     int attempts = 0;
     do {
-      if (attempts >= range) throw StateError('No available codes in range $bottom–$top');
+      if (attempts >= range) {
+        throw StateError('No available codes in range $bottom–$top');
+      }
       code = bottom + random.nextInt(range);
       attempts++;
     } while ((await db.anomalyRepo.getAnomalyByCode(code)) != null);
-    final anomalyDb = AnomalyMapper.fromDomain(Anomaly(
-      code: code,
-      type: anomalyCreateDto.type,
-      classification: anomalyCreateDto.classification,
-      disruption: anomalyCreateDto.disruption,
-      hostility: anomalyCreateDto.hostility,
-      info: anomalyCreateDto.info,
-      coordinates: anomalyCreateDto.coordinates,
-      name: anomalyCreateDto.name,
-      phone: anomalyCreateDto.phone,
-      value: anomalyCreateDto.value,
-    ));
+    final String nameSearch =
+        "${anomalyCreateDto.type.name.toUpperCase()}${anomalyCreateDto.classification.index}_$code";
+    final anomalyDb = AnomalyMapper.fromDomain(
+      Anomaly(
+        code: code,
+        type: anomalyCreateDto.type,
+        classification: anomalyCreateDto.classification,
+        disruption: anomalyCreateDto.disruption,
+        hostility: anomalyCreateDto.hostility,
+        info: anomalyCreateDto.info,
+        nameSearch: nameSearch,
+        coordinates: anomalyCreateDto.coordinates,
+        name: anomalyCreateDto.name,
+        phone: anomalyCreateDto.phone,
+        value: anomalyCreateDto.value,
+      ),
+    );
     final int id = await db.anomalyRepo.createAnomaly(anomalyDb);
-    return AnomalyMapper.fromDb(AnomalyDb(
-      id: id,
-      code: anomalyDb.code,
-      type: anomalyDb.type,
-      classification: anomalyDb.classification,
-      disruption: anomalyDb.disruption,
-      hostility: anomalyDb.hostility,
-      info: anomalyDb.info,
-      name: anomalyDb.name,
-      phone: anomalyDb.phone,
-      latitude: anomalyDb.latitude,
-      longitude: anomalyDb.longitude,
-      value: anomalyDb.value,
-    ));
+    return AnomalyMapper.fromDb(
+      AnomalyDb(
+        id: id,
+        code: anomalyDb.code,
+        type: anomalyDb.type,
+        classification: anomalyDb.classification,
+        disruption: anomalyDb.disruption,
+        hostility: anomalyDb.hostility,
+        info: anomalyDb.info,
+        nameSearch: anomalyDb.nameSearch,
+        name: anomalyDb.name,
+        phone: anomalyDb.phone,
+        latitude: anomalyDb.latitude,
+        longitude: anomalyDb.longitude,
+        value: anomalyDb.value,
+      ),
+    );
   }
 }
