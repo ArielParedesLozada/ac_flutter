@@ -1,4 +1,4 @@
-import 'package:acl_flutter/presentation/pages/test.dart';
+import 'package:acl_flutter/presentation/pages/anomalies.dart';
 import 'package:flutter/material.dart';
 
 class _NavDestination {
@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
     _NavDestination(
       icon: Icons.list_alt_outlined,
       label: 'Anomalías',
-      page: const TestPage(),
+      page: const AnomaliesPage(),
     ),
   ];
 
