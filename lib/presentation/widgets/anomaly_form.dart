@@ -78,6 +78,7 @@ class _AnomalyFormState extends State<AnomalyForm> {
     return Form(
       key: _formKey,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           TextFormField(
@@ -165,13 +166,14 @@ class _AnomalyFormState extends State<AnomalyForm> {
             ),
             decoration: const InputDecoration(labelText: "Valor"),
           ),
+          Padding(padding: EdgeInsets.all(10), child: const Text("Ubicación")),
           SizedBox(
             height: 300,
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
                 initialCenter: LatLng(-1.241667, -78.619720),
-                initialZoom: 5,
+                initialZoom: 9,
                 onTap: (tapPosition, point) {
                   setState(() {
                     _coordinates = Coordinates(

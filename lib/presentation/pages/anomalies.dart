@@ -42,11 +42,10 @@ class _TestPageState extends State<AnomaliesPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.blue[300],
-        icon: const Icon(Icons.add),
-        label: const Text('Agregar'),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 140, 197, 243),
         onPressed: showAnomalyForm,
+        child: const Icon(Icons.add),
       ),
       body: FutureBuilder<List<Anomaly>>(
         future: _future,

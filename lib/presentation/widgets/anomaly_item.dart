@@ -9,15 +9,15 @@ class AnomalyItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
-      child: Container(
-        color: Colors.blue[50],
-        child: ListTile(
-          leading: const Icon(Icons.account_circle),
-          title: Text(anomaly.nameSearch),
-          trailing: const Icon(Icons.keyboard_arrow_down),
-          subtitle: Text(anomaly.name ?? ''),
-          onTap: () {},
-        ),
+      child: ListTile(
+        tileColor: const Color.fromARGB(255, 183, 223, 255),
+        leading: const Icon(Icons.account_circle),
+        title: Text(anomaly.nameSearch),
+        trailing: const Icon(Icons.keyboard_arrow_down),
+        subtitle: Text(anomaly.name ?? ''),
+        onTap: () {
+          
+        },
       ),
     );
   }
