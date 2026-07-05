@@ -73,16 +73,36 @@ class _TestPageState extends State<AnomaliesPage> {
   void showAnomalyForm() {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text("Registra una anomalia"),
-        content: SingleChildScrollView(
-          child: AnomalyForm(
-            onSubmit: (dto) async {
-              await anomalyService.createAnomaly(dto);
-              if (!context.mounted) return;
-              Navigator.pop(dialogContext);
-              _refresh();
-            },
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+                child: Text(
+                  "Registra una anomalía",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: AnomalyForm(
+                    onSubmit: (dto) async {
+                      await anomalyService.createAnomaly(dto);
+                      if (!context.mounted) return;
+                      Navigator.pop(dialogContext);
+                      _refresh();
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
