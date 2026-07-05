@@ -97,6 +97,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `anomalies` (`id` INTEGER, `code` INTEGER NOT NULL, `type` INTEGER NOT NULL, `classification` INTEGER NOT NULL, `disruption` INTEGER NOT NULL, `hostility` INTEGER NOT NULL, `info` INTEGER NOT NULL, `name` TEXT, `phone` TEXT, `latitude` REAL, `longitude` REAL, `value` REAL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE UNIQUE INDEX `index_anomalies_code` ON `anomalies` (`code`)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -114,13 +116,32 @@ class _$AnomalyRepo extends AnomalyRepo {
   _$AnomalyRepo(
     this.database,
     this.changeListener,
-  ) : _queryAdapter = QueryAdapter(database);
+  )   : _queryAdapter = QueryAdapter(database),
+        _anomalyDbInsertionAdapter = InsertionAdapter(
+            database,
+            'anomalies',
+            (AnomalyDb item) => <String, Object?>{
+                  'id': item.id,
+                  'code': item.code,
+                  'type': item.type,
+                  'classification': item.classification,
+                  'disruption': item.disruption,
+                  'hostility': item.hostility,
+                  'info': item.info,
+                  'name': item.name,
+                  'phone': item.phone,
+                  'latitude': item.latitude,
+                  'longitude': item.longitude,
+                  'value': item.value
+                });
 
   final sqflite.DatabaseExecutor database;
 
   final StreamController<String> changeListener;
 
   final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<AnomalyDb> _anomalyDbInsertionAdapter;
 
   @override
   Future<List<AnomalyDb>> getAllAnomalies() async {
@@ -161,5 +182,68 @@ class _$AnomalyRepo extends AnomalyRepo {
             phone: row['phone'] as String?,
             value: row['value'] as double?),
         arguments: [lastId, limit]);
+  }
+
+  @override
+  Future<AnomalyDb?> getAnomalyById(int id) async {
+    return _queryAdapter.query('SELECT * FROM anomalies WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => AnomalyDb(
+            id: row['id'] as int?,
+            code: row['code'] as int,
+            type: row['type'] as int,
+            classification: row['classification'] as int,
+            disruption: row['disruption'] as int,
+            hostility: row['hostility'] as int,
+            info: row['info'] as int,
+            latitude: row['latitude'] as double?,
+            longitude: row['longitude'] as double?,
+            name: row['name'] as String?,
+            phone: row['phone'] as String?,
+            value: row['value'] as double?),
+        arguments: [id]);
+  }
+
+  @override
+  Future<AnomalyDb?> getAnomalyByCode(int code) async {
+    return _queryAdapter.query('SELECT * FROM anomalies WHERE code = ?1',
+        mapper: (Map<String, Object?> row) => AnomalyDb(
+            id: row['id'] as int?,
+            code: row['code'] as int,
+            type: row['type'] as int,
+            classification: row['classification'] as int,
+            disruption: row['disruption'] as int,
+            hostility: row['hostility'] as int,
+            info: row['info'] as int,
+            latitude: row['latitude'] as double?,
+            longitude: row['longitude'] as double?,
+            name: row['name'] as String?,
+            phone: row['phone'] as String?,
+            value: row['value'] as double?),
+        arguments: [code]);
+  }
+
+  @override
+  Future<List<AnomalyDb>> getAnomaliesByName(String name) async {
+    return _queryAdapter.queryList('SELECT * FROM anomalies WHERE name LIKE ?1',
+        mapper: (Map<String, Object?> row) => AnomalyDb(
+            id: row['id'] as int?,
+            code: row['code'] as int,
+            type: row['type'] as int,
+            classification: row['classification'] as int,
+            disruption: row['disruption'] as int,
+            hostility: row['hostility'] as int,
+            info: row['info'] as int,
+            latitude: row['latitude'] as double?,
+            longitude: row['longitude'] as double?,
+            name: row['name'] as String?,
+            phone: row['phone'] as String?,
+            value: row['value'] as double?),
+        arguments: [name]);
+  }
+
+  @override
+  Future<int> createAnomaly(AnomalyDb anomaly) {
+    return _anomalyDbInsertionAdapter.insertAndReturnId(
+        anomaly, OnConflictStrategy.abort);
   }
 }

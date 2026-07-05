@@ -1,7 +1,12 @@
 import 'package:floor/floor.dart';
 
 // Como se guarda la entidad en SQLite
-@Entity(tableName: 'anomalies')
+@Entity(
+  tableName: 'anomalies',
+  indices: [
+    Index(value: ['code'], unique: true),
+  ],
+)
 class AnomalyDb {
   @primaryKey
   final int? id;

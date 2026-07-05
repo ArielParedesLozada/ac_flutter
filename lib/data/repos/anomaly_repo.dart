@@ -5,7 +5,19 @@ import 'package:floor/floor.dart';
 abstract class AnomalyRepo {
   @Query('SELECT * FROM anomalies')
   Future<List<AnomalyDb>> getAllAnomalies();
-  
+
   @Query('SELECT * FROM anomalies WHERE id > :lastId ORDER BY id LIMIT :limit')
   Future<List<AnomalyDb>> getPagedAnomalies(int lastId, int limit);
+
+  @Query('SELECT * FROM anomalies WHERE id = :id')
+  Future<AnomalyDb?> getAnomalyById(int id);
+
+  @Query('SELECT * FROM anomalies WHERE code = :code')
+  Future<AnomalyDb?> getAnomalyByCode(int code);
+
+  @Query('SELECT * FROM anomalies WHERE name LIKE :name')
+  Future<List<AnomalyDb>> getAnomaliesByName(String name);
+
+  @Insert(onConflict: OnConflictStrategy.abort)
+  Future<int> createAnomaly(AnomalyDb anomaly);
 }
