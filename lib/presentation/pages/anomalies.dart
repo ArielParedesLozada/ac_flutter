@@ -61,7 +61,22 @@ class _TestPageState extends State<AnomaliesPage> {
             itemCount: anomalies.length,
             itemBuilder: (context, index) => Container(
               padding: const EdgeInsets.all(5),
-              child: AnomalyItem(anomaly: anomalies[index], onReturn: _refresh),
+              child: Dismissible(
+                key: Key(anomalies[index].toString()),
+                onDismissed: (direction) {
+                  setState(() {
+                    _future = anomalyService.getAnomalies();
+                  });
+                },
+                confirmDismiss: (direction) async {
+                  _confirmDismiss(anomalies[index].id!);
+                  return null;
+                },
+                child: AnomalyItem(
+                  anomaly: anomalies[index],
+                  onReturn: _refresh,
+                ),
+              ),
             ),
           );
         },
@@ -105,6 +120,33 @@ class _TestPageState extends State<AnomaliesPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _confirmDismiss(int id) async {
+    return await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Confirmar"),
+          content: const Text("¿Estás seguro que quieres eliminar?"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await anomalyService.deleteAnomaly(id);
+                if (!context.mounted) return;
+                Navigator.pop(dialogContext);
+                _refresh();
+              },
+              child: const Text("ELIMINAR"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("CANCELAR"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
