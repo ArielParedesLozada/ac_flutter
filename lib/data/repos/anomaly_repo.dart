@@ -23,4 +23,10 @@ abstract class AnomalyRepo {
 
   @Insert(onConflict: OnConflictStrategy.abort)
   Future<int> createAnomaly(AnomalyDb anomaly);
+
+  @Update(onConflict: OnConflictStrategy.abort)
+  Future<int> updateAnomaly(AnomalyDb anomaly);
+
+  @Query('DELETE FROM anomalies WHERE id = :id')
+  Future<void> deleteAnomaly(int id);
 }

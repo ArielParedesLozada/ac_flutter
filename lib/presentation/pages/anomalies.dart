@@ -61,7 +61,7 @@ class _TestPageState extends State<AnomaliesPage> {
             itemCount: anomalies.length,
             itemBuilder: (context, index) => Container(
               padding: const EdgeInsets.all(5),
-              child: AnomalyItem(anomaly: anomalies[index]),
+              child: AnomalyItem(anomaly: anomalies[index], onReturn: _refresh),
             ),
           );
         },

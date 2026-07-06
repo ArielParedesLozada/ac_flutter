@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:acl_flutter/app/dtos/anomaly_create_dto.dart';
+import 'package:acl_flutter/app/dtos/anomaly_update_dto.dart';
 import 'package:acl_flutter/data/database.dart';
 import 'package:acl_flutter/data/models/anomaly_db.dart';
+import 'package:acl_flutter/domain/enums/anomaly_enums.dart';
 import 'package:acl_flutter/domain/models/anomaly.dart';
 import 'package:acl_flutter/infrastructure/mapper/anomaly_mapper.dart';
 
@@ -96,5 +98,58 @@ class AnomalyService {
         value: anomalyDb.value,
       ),
     );
+  }
+
+  Future<Anomaly?> updateAnomaly(
+    int id,
+    AnomalyUpdateDto anomalyUpdateDto,
+  ) async {
+    final db = await AppDatabase.instance;
+    final existingDb = await db.anomalyRepo.getAnomalyById(id);
+    if (existingDb == null) throw StateError("Anomaly not found");
+    final type = anomalyUpdateDto.type ?? AnomalyType.values[existingDb.type];
+    final classification =
+        anomalyUpdateDto.classification ??
+        AnomalyClass.values[existingDb.classification];
+    final disruption =
+        anomalyUpdateDto.disruption ??
+        AnomalyDisruption.values[existingDb.disruption];
+    final hostility =
+        anomalyUpdateDto.hostility ??
+        AnomalyHostility.values[existingDb.hostility];
+    final info = anomalyUpdateDto.info ?? AnomalyInfo.values[existingDb.info];
+    final nameSearch =
+        "${type.name.toUpperCase()}${classification.index}_${existingDb.code}";
+
+    final updatedDb = AnomalyMapper.fromDomain(
+      Anomaly(
+        id: id,
+        code: existingDb.code,
+        type: type,
+        classification: classification,
+        disruption: disruption,
+        hostility: hostility,
+        info: info,
+        nameSearch: nameSearch,
+        name: anomalyUpdateDto.name ?? existingDb.name,
+        phone: anomalyUpdateDto.phone ?? existingDb.phone,
+        coordinates:
+            anomalyUpdateDto.coordinates ??
+            (existingDb.latitude != null && existingDb.longitude != null
+                ? Coordinates(
+                    latitude: existingDb.latitude!,
+                    longitude: existingDb.longitude!,
+                  )
+                : null),
+        value: anomalyUpdateDto.value ?? existingDb.value,
+      ),
+    );
+    await db.anomalyRepo.updateAnomaly(updatedDb);
+    return AnomalyMapper.fromDb(updatedDb);
+  }
+
+  Future<void> deleteAnomaly(int id) async {
+    final db = await AppDatabase.instance;
+    await db.anomalyRepo.deleteAnomaly(id);
   }
 }

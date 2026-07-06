@@ -134,6 +134,25 @@ class _$AnomalyRepo extends AnomalyRepo {
                   'latitude': item.latitude,
                   'longitude': item.longitude,
                   'value': item.value
+                }),
+        _anomalyDbUpdateAdapter = UpdateAdapter(
+            database,
+            'anomalies',
+            ['id'],
+            (AnomalyDb item) => <String, Object?>{
+                  'id': item.id,
+                  'code': item.code,
+                  'type': item.type,
+                  'classification': item.classification,
+                  'disruption': item.disruption,
+                  'hostility': item.hostility,
+                  'info': item.info,
+                  'nameSearch': item.nameSearch,
+                  'name': item.name,
+                  'phone': item.phone,
+                  'latitude': item.latitude,
+                  'longitude': item.longitude,
+                  'value': item.value
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -143,6 +162,8 @@ class _$AnomalyRepo extends AnomalyRepo {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<AnomalyDb> _anomalyDbInsertionAdapter;
+
+  final UpdateAdapter<AnomalyDb> _anomalyDbUpdateAdapter;
 
   @override
   Future<List<AnomalyDb>> getAllAnomalies() async {
@@ -256,8 +277,20 @@ class _$AnomalyRepo extends AnomalyRepo {
   }
 
   @override
+  Future<void> deleteAnomaly(int id) async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM anomalies WHERE id = ?1', arguments: [id]);
+  }
+
+  @override
   Future<int> createAnomaly(AnomalyDb anomaly) {
     return _anomalyDbInsertionAdapter.insertAndReturnId(
+        anomaly, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateAnomaly(AnomalyDb anomaly) {
+    return _anomalyDbUpdateAdapter.updateAndReturnChangedRows(
         anomaly, OnConflictStrategy.abort);
   }
 }

@@ -35,7 +35,9 @@ class _AnomalyFormState extends State<AnomalyForm> {
     final a = widget.anomaly;
     _nameController = TextEditingController(text: a?.name ?? '');
     _phoneController = TextEditingController(text: a?.phone ?? '');
-    _valueController = TextEditingController(text: a?.value.toString() ?? '');
+    _valueController = TextEditingController(
+      text: a?.value == null ? '' : a?.value?.toString(),
+    );
     _selectedType = a?.type ?? AnomalyType.kte;
     _selectedClass = a?.classification ?? AnomalyClass.safe;
     _selectedDisruption = a?.disruption ?? AnomalyDisruption.dark;
@@ -172,7 +174,12 @@ class _AnomalyFormState extends State<AnomalyForm> {
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                initialCenter: LatLng(-1.241667, -78.619720),
+                initialCenter: widget.anomaly?.coordinates == null
+                    ? LatLng(-1.241667, -78.619720)
+                    : LatLng(
+                        widget.anomaly!.coordinates!.latitude,
+                        widget.anomaly!.coordinates!.longitude,
+                      ),
                 initialZoom: 9,
                 onTap: (tapPosition, point) {
                   setState(() {

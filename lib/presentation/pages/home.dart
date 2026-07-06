@@ -1,17 +1,5 @@
-import 'package:acl_flutter/presentation/pages/anomalies.dart';
+import 'package:acl_flutter/presentation/navigation/navigator.dart';
 import 'package:flutter/material.dart';
-
-class _NavDestination {
-  const _NavDestination({
-    required this.icon,
-    required this.label,
-    required this.page,
-  });
-
-  final IconData icon;
-  final String label;
-  final Widget page;
-}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,19 +10,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
-  static final List<_NavDestination> _destinations = [
-    _NavDestination(
-      icon: Icons.home_outlined,
-      label: 'Inicio',
-      page: const _HomeBody(),
-    ),
-    _NavDestination(
-      icon: Icons.list_alt_outlined,
-      label: 'Anomalías',
-      page: const AnomaliesPage(),
-    ),
-  ];
+  final _destinations = NavList.destinations;
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +31,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _HomeBody extends StatelessWidget {
-  const _HomeBody();
+class HomeBody extends StatelessWidget {
+  const HomeBody({super.key});
 
   @override
   Widget build(BuildContext context) {
