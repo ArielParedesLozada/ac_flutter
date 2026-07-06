@@ -74,6 +74,8 @@ class _$AppDatabase extends AppDatabase {
 
   AnomalyRepo? _anomalyRepoInstance;
 
+  AnomalyNoteRepo? _anomalyNoteRepoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -98,6 +100,8 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `anomalies` (`id` INTEGER, `code` INTEGER NOT NULL, `type` INTEGER NOT NULL, `classification` INTEGER NOT NULL, `disruption` INTEGER NOT NULL, `hostility` INTEGER NOT NULL, `info` INTEGER NOT NULL, `nameSearch` TEXT NOT NULL, `name` TEXT, `phone` TEXT, `latitude` REAL, `longitude` REAL, `value` REAL, PRIMARY KEY (`id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `anomaly_notes` (`id` INTEGER, `anomaly_id` INTEGER NOT NULL, `anomaly_name` TEXT NOT NULL, `content` TEXT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT, FOREIGN KEY (`anomaly_id`) REFERENCES `anomalies` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
+        await database.execute(
             'CREATE UNIQUE INDEX `index_anomalies_code` ON `anomalies` (`code`)');
 
         await callback?.onCreate?.call(database, version);
@@ -109,6 +113,12 @@ class _$AppDatabase extends AppDatabase {
   @override
   AnomalyRepo get anomalyRepo {
     return _anomalyRepoInstance ??= _$AnomalyRepo(database, changeListener);
+  }
+
+  @override
+  AnomalyNoteRepo get anomalyNoteRepo {
+    return _anomalyNoteRepoInstance ??=
+        _$AnomalyNoteRepo(database, changeListener);
   }
 }
 
@@ -292,5 +302,97 @@ class _$AnomalyRepo extends AnomalyRepo {
   Future<int> updateAnomaly(AnomalyDb anomaly) {
     return _anomalyDbUpdateAdapter.updateAndReturnChangedRows(
         anomaly, OnConflictStrategy.abort);
+  }
+}
+
+class _$AnomalyNoteRepo extends AnomalyNoteRepo {
+  _$AnomalyNoteRepo(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _anomalyNoteDbInsertionAdapter = InsertionAdapter(
+            database,
+            'anomaly_notes',
+            (AnomalyNoteDb item) => <String, Object?>{
+                  'id': item.id,
+                  'anomaly_id': item.anomalyId,
+                  'anomaly_name': item.anomalyName,
+                  'content': item.content,
+                  'created_at': item.createdAt,
+                  'updated_at': item.updatedAt
+                }),
+        _anomalyNoteDbUpdateAdapter = UpdateAdapter(
+            database,
+            'anomaly_notes',
+            ['id'],
+            (AnomalyNoteDb item) => <String, Object?>{
+                  'id': item.id,
+                  'anomaly_id': item.anomalyId,
+                  'anomaly_name': item.anomalyName,
+                  'content': item.content,
+                  'created_at': item.createdAt,
+                  'updated_at': item.updatedAt
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<AnomalyNoteDb> _anomalyNoteDbInsertionAdapter;
+
+  final UpdateAdapter<AnomalyNoteDb> _anomalyNoteDbUpdateAdapter;
+
+  @override
+  Future<List<AnomalyNoteDb>> getAllAnomalyNotes() async {
+    return _queryAdapter.queryList('SELECT * FROM anomaly_notes',
+        mapper: (Map<String, Object?> row) => AnomalyNoteDb(
+            id: row['id'] as int?,
+            anomalyId: row['anomaly_id'] as int,
+            anomalyName: row['anomaly_name'] as String,
+            content: row['content'] as String,
+            createdAt: row['created_at'] as String,
+            updatedAt: row['updated_at'] as String?));
+  }
+
+  @override
+  Future<List<AnomalyNoteDb>> searchNotes(String query) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM anomaly_notes WHERE anomaly_notes MATCH ?1 ORDER BY bm25(anomaly_notes)',
+        mapper: (Map<String, Object?> row) => AnomalyNoteDb(id: row['id'] as int?, anomalyId: row['anomaly_id'] as int, anomalyName: row['anomaly_name'] as String, content: row['content'] as String, createdAt: row['created_at'] as String, updatedAt: row['updated_at'] as String?),
+        arguments: [query]);
+  }
+
+  @override
+  Future<List<AnomalyNoteDb>> anomaliesByAnomalyId(int anomalyId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM anomaly_notes WHERE anomaly_id = ?1 ORDER BY created_at',
+        mapper: (Map<String, Object?> row) => AnomalyNoteDb(
+            id: row['id'] as int?,
+            anomalyId: row['anomaly_id'] as int,
+            anomalyName: row['anomaly_name'] as String,
+            content: row['content'] as String,
+            createdAt: row['created_at'] as String,
+            updatedAt: row['updated_at'] as String?),
+        arguments: [anomalyId]);
+  }
+
+  @override
+  Future<void> deleteNote(int id) async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM anomalies WHERE id = ?1', arguments: [id]);
+  }
+
+  @override
+  Future<int> createNote(AnomalyNoteDb anomalyNote) {
+    return _anomalyNoteDbInsertionAdapter.insertAndReturnId(
+        anomalyNote, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateNote(AnomalyNoteDb anomalyNote) {
+    return _anomalyNoteDbUpdateAdapter.updateAndReturnChangedRows(
+        anomalyNote, OnConflictStrategy.abort);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:acl_flutter/presentation/pages/anomalies.dart';
+import 'package:acl_flutter/presentation/pages/anomaly_notes.dart';
 import 'package:acl_flutter/presentation/pages/home.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,11 @@ class NavList {
       icon: Icons.list_alt_outlined,
       label: 'Anomalías',
       page: const AnomaliesPage(),
+    ),
+    NavDestination(
+      icon: Icons.notes,
+      label: "Notas",
+      page: const AnomalyNotesPage(),
     ),
   ];
 }
