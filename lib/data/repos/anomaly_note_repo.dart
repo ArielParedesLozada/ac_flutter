@@ -7,7 +7,9 @@ abstract class AnomalyNoteRepo {
   Future<List<AnomalyNoteDb>> getAllAnomalyNotes();
 
   @Query(
-    'SELECT * FROM anomaly_notes WHERE anomaly_notes MATCH :query ORDER BY bm25(anomaly_notes)',
+    'SELECT an.* FROM anomaly_notes an '
+    'INNER JOIN anomaly_notes_fts fts ON an.id = fts.docid '
+    'WHERE anomaly_notes_fts MATCH :query',
   )
   Future<List<AnomalyNoteDb>> searchNotes(String query);
 

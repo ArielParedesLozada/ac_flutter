@@ -10,7 +10,7 @@ class AnomalyNoteItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: ListTile(
-        tileColor: const Color.fromARGB(255, 154, 186, 255),
+        tileColor: const Color.fromARGB(255, 202, 219, 255),
         leading: const Icon(Icons.info),
         title: Text(anomalyNote.content),
         subtitle: Text(anomalyNote.anomalyName),

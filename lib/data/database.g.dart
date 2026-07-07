@@ -359,7 +359,7 @@ class _$AnomalyNoteRepo extends AnomalyNoteRepo {
   @override
   Future<List<AnomalyNoteDb>> searchNotes(String query) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM anomaly_notes WHERE anomaly_notes MATCH ?1 ORDER BY bm25(anomaly_notes)',
+        'SELECT an.* FROM anomaly_notes an INNER JOIN anomaly_notes_fts fts ON an.id = fts.docid WHERE anomaly_notes_fts MATCH ?1',
         mapper: (Map<String, Object?> row) => AnomalyNoteDb(id: row['id'] as int?, anomalyId: row['anomaly_id'] as int, anomalyName: row['anomaly_name'] as String, content: row['content'] as String, createdAt: row['created_at'] as String, updatedAt: row['updated_at'] as String?),
         arguments: [query]);
   }
