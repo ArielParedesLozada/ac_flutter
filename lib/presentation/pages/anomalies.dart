@@ -69,7 +69,7 @@ class _TestPageState extends State<AnomaliesPage> {
                   });
                 },
                 confirmDismiss: (direction) async {
-                  _confirmDismiss(anomalies[index].id!);
+                  _confirmDismiss(anomalies[index]);
                   return null;
                 },
                 child: AnomalyItem(
@@ -123,7 +123,7 @@ class _TestPageState extends State<AnomaliesPage> {
     );
   }
 
-  Future<void> _confirmDismiss(int id) async {
+  Future<void> _confirmDismiss(Anomaly anomaly) async {
     return await showDialog(
       context: context,
       builder: (dialogContext) {
@@ -133,7 +133,7 @@ class _TestPageState extends State<AnomaliesPage> {
           actions: [
             TextButton(
               onPressed: () async {
-                await anomalyService.deleteAnomaly(id);
+                await anomalyService.deleteAnomaly(anomaly);
                 if (!context.mounted) return;
                 Navigator.pop(dialogContext);
                 _refresh();

@@ -98,7 +98,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `anomalies` (`id` INTEGER, `code` INTEGER NOT NULL, `type` INTEGER NOT NULL, `classification` INTEGER NOT NULL, `disruption` INTEGER NOT NULL, `hostility` INTEGER NOT NULL, `info` INTEGER NOT NULL, `nameSearch` TEXT NOT NULL, `name` TEXT, `phone` TEXT, `latitude` REAL, `longitude` REAL, `value` REAL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `anomalies` (`id` INTEGER, `code` INTEGER NOT NULL, `type` INTEGER NOT NULL, `classification` INTEGER NOT NULL, `disruption` INTEGER NOT NULL, `hostility` INTEGER NOT NULL, `info` INTEGER NOT NULL, `nameSearch` TEXT NOT NULL, `name` TEXT, `phone` TEXT, `contact_id` TEXT, `latitude` REAL, `longitude` REAL, `value` REAL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `anomaly_notes` (`id` INTEGER, `anomaly_id` INTEGER NOT NULL, `anomaly_name` TEXT NOT NULL, `content` TEXT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT, FOREIGN KEY (`anomaly_id`) REFERENCES `anomalies` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
         await database.execute(
@@ -141,6 +141,7 @@ class _$AnomalyRepo extends AnomalyRepo {
                   'nameSearch': item.nameSearch,
                   'name': item.name,
                   'phone': item.phone,
+                  'contact_id': item.contactId,
                   'latitude': item.latitude,
                   'longitude': item.longitude,
                   'value': item.value
@@ -160,6 +161,7 @@ class _$AnomalyRepo extends AnomalyRepo {
                   'nameSearch': item.nameSearch,
                   'name': item.name,
                   'phone': item.phone,
+                  'contact_id': item.contactId,
                   'latitude': item.latitude,
                   'longitude': item.longitude,
                   'value': item.value
@@ -191,6 +193,7 @@ class _$AnomalyRepo extends AnomalyRepo {
             longitude: row['longitude'] as double?,
             name: row['name'] as String?,
             phone: row['phone'] as String?,
+            contactId: row['contact_id'] as String?,
             value: row['value'] as double?));
   }
 
@@ -214,6 +217,7 @@ class _$AnomalyRepo extends AnomalyRepo {
             longitude: row['longitude'] as double?,
             name: row['name'] as String?,
             phone: row['phone'] as String?,
+            contactId: row['contact_id'] as String?,
             value: row['value'] as double?),
         arguments: [lastId, limit]);
   }
@@ -234,6 +238,7 @@ class _$AnomalyRepo extends AnomalyRepo {
             longitude: row['longitude'] as double?,
             name: row['name'] as String?,
             phone: row['phone'] as String?,
+            contactId: row['contact_id'] as String?,
             value: row['value'] as double?),
         arguments: [id]);
   }
@@ -254,6 +259,7 @@ class _$AnomalyRepo extends AnomalyRepo {
             longitude: row['longitude'] as double?,
             name: row['name'] as String?,
             phone: row['phone'] as String?,
+            contactId: row['contact_id'] as String?,
             value: row['value'] as double?),
         arguments: [code]);
   }
@@ -274,6 +280,7 @@ class _$AnomalyRepo extends AnomalyRepo {
             longitude: row['longitude'] as double?,
             name: row['name'] as String?,
             phone: row['phone'] as String?,
+            contactId: row['contact_id'] as String?,
             value: row['value'] as double?),
         arguments: [name]);
   }
@@ -282,7 +289,7 @@ class _$AnomalyRepo extends AnomalyRepo {
   Future<List<AnomalyDb>> searchAnomalies(String query) async {
     return _queryAdapter.queryList(
         'SELECT * FROM anomalies WHERE name LIKE ?1 OR code LIKE ?1 OR nameSearch LIKE ?1',
-        mapper: (Map<String, Object?> row) => AnomalyDb(id: row['id'] as int?, code: row['code'] as int, type: row['type'] as int, classification: row['classification'] as int, disruption: row['disruption'] as int, hostility: row['hostility'] as int, info: row['info'] as int, nameSearch: row['nameSearch'] as String, latitude: row['latitude'] as double?, longitude: row['longitude'] as double?, name: row['name'] as String?, phone: row['phone'] as String?, value: row['value'] as double?),
+        mapper: (Map<String, Object?> row) => AnomalyDb(id: row['id'] as int?, code: row['code'] as int, type: row['type'] as int, classification: row['classification'] as int, disruption: row['disruption'] as int, hostility: row['hostility'] as int, info: row['info'] as int, nameSearch: row['nameSearch'] as String, latitude: row['latitude'] as double?, longitude: row['longitude'] as double?, name: row['name'] as String?, phone: row['phone'] as String?, contactId: row['contact_id'] as String?, value: row['value'] as double?),
         arguments: [query]);
   }
 

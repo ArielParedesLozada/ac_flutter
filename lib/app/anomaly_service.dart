@@ -6,6 +6,7 @@ import 'package:acl_flutter/data/database.dart';
 import 'package:acl_flutter/data/models/anomaly_db.dart';
 import 'package:acl_flutter/domain/enums/anomaly_enums.dart';
 import 'package:acl_flutter/domain/models/anomaly.dart';
+import 'package:acl_flutter/infrastructure/contacts/contact_service.dart';
 import 'package:acl_flutter/infrastructure/mapper/anomaly_mapper.dart';
 
 class AnomalyService {
@@ -65,6 +66,20 @@ class AnomalyService {
     } while ((await db.anomalyRepo.getAnomalyByCode(code)) != null);
     final String nameSearch =
         "${anomalyCreateDto.type.name.toUpperCase()}${anomalyCreateDto.classification.index}_$code";
+    final anomalyCreated = Anomaly(
+      code: code,
+      type: anomalyCreateDto.type,
+      classification: anomalyCreateDto.classification,
+      disruption: anomalyCreateDto.disruption,
+      hostility: anomalyCreateDto.hostility,
+      info: anomalyCreateDto.info,
+      nameSearch: nameSearch,
+      coordinates: anomalyCreateDto.coordinates,
+      name: anomalyCreateDto.name,
+      phone: anomalyCreateDto.phone,
+      value: anomalyCreateDto.value,
+    );
+    final contactId = await ContactService.createContact(anomalyCreated);
     final anomalyDb = AnomalyMapper.fromDomain(
       Anomaly(
         code: code,
@@ -77,6 +92,7 @@ class AnomalyService {
         coordinates: anomalyCreateDto.coordinates,
         name: anomalyCreateDto.name,
         phone: anomalyCreateDto.phone,
+        contactId: contactId,
         value: anomalyCreateDto.value,
       ),
     );
@@ -120,36 +136,37 @@ class AnomalyService {
     final info = anomalyUpdateDto.info ?? AnomalyInfo.values[existingDb.info];
     final nameSearch =
         "${type.name.toUpperCase()}${classification.index}_${existingDb.code}";
-
-    final updatedDb = AnomalyMapper.fromDomain(
-      Anomaly(
-        id: id,
-        code: existingDb.code,
-        type: type,
-        classification: classification,
-        disruption: disruption,
-        hostility: hostility,
-        info: info,
-        nameSearch: nameSearch,
-        name: anomalyUpdateDto.name ?? existingDb.name,
-        phone: anomalyUpdateDto.phone ?? existingDb.phone,
-        coordinates:
-            anomalyUpdateDto.coordinates ??
-            (existingDb.latitude != null && existingDb.longitude != null
-                ? Coordinates(
-                    latitude: existingDb.latitude!,
-                    longitude: existingDb.longitude!,
-                  )
-                : null),
-        value: anomalyUpdateDto.value ?? existingDb.value,
-      ),
+    final anomalyCreated = Anomaly(
+      id: id,
+      code: existingDb.code,
+      type: type,
+      classification: classification,
+      disruption: disruption,
+      hostility: hostility,
+      info: info,
+      nameSearch: nameSearch,
+      name: anomalyUpdateDto.name ?? existingDb.name,
+      phone: anomalyUpdateDto.phone ?? existingDb.phone,
+      contactId: existingDb.contactId,
+      coordinates:
+          anomalyUpdateDto.coordinates ??
+          (existingDb.latitude != null && existingDb.longitude != null
+              ? Coordinates(
+                  latitude: existingDb.latitude!,
+                  longitude: existingDb.longitude!,
+                )
+              : null),
+      value: anomalyUpdateDto.value ?? existingDb.value,
     );
+    final updatedDb = AnomalyMapper.fromDomain(anomalyCreated);
     await db.anomalyRepo.updateAnomaly(updatedDb);
+    await ContactService.updateContact(anomalyCreated);
     return AnomalyMapper.fromDb(updatedDb);
   }
 
-  Future<void> deleteAnomaly(int id) async {
+  Future<void> deleteAnomaly(Anomaly anomaly) async {
     final db = await AppDatabase.instance;
-    await db.anomalyRepo.deleteAnomaly(id);
+    await ContactService.deleteContact(anomaly);
+    await db.anomalyRepo.deleteAnomaly(anomaly.id!);
   }
 }

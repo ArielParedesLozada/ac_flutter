@@ -28,6 +28,8 @@ class AnomalyDb {
   final String? name;
   @ColumnInfo(name: 'phone')
   final String? phone;
+  @ColumnInfo(name: 'contact_id')
+  final String? contactId;
   @ColumnInfo(name: 'latitude')
   final double? latitude;
   @ColumnInfo(name: 'longitude')
@@ -48,6 +50,7 @@ class AnomalyDb {
     this.longitude,
     this.name,
     this.phone,
+    this.contactId,
     this.value,
   });
 }

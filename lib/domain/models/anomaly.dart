@@ -11,6 +11,7 @@ class Anomaly {
   final String nameSearch;
   final String? name;
   final String? phone;
+  final String? contactId;
   final Coordinates? coordinates;
   final double? value;
 
@@ -26,6 +27,7 @@ class Anomaly {
     this.coordinates,
     this.name,
     this.phone,
+    this.contactId,
     this.value,
   });
 }

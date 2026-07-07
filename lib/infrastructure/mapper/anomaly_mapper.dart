@@ -15,6 +15,7 @@ class AnomalyMapper {
       nameSearch: anomaly.nameSearch,
       name: anomaly.name,
       phone: anomaly.phone,
+      contactId: anomaly.contactId,
       coordinates: anomaly.latitude != null && anomaly.longitude != null
           ? Coordinates(
               latitude: anomaly.latitude!,
@@ -37,6 +38,7 @@ class AnomalyMapper {
       nameSearch: anomaly.nameSearch,
       name: anomaly.name,
       phone: anomaly.phone,
+      contactId: anomaly.contactId,
       latitude: anomaly.coordinates?.latitude,
       longitude: anomaly.coordinates?.longitude,
       value: anomaly.value,
