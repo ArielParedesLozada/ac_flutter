@@ -28,10 +28,14 @@ class ContactService {
     if (anomaly.phone == null || anomaly.phone!.isEmpty) {
       await FlutterContacts.delete(anomaly.contactId!);
     } else {
+      final existing = await FlutterContacts.get(
+        anomaly.contactId!,
+        properties: {ContactProperty.name, ContactProperty.phone},
+      );
+      if (existing == null) return;
       await FlutterContacts.update(
-        Contact(
-          id: anomaly.contactId!,
-          name: Name(first: anomaly.nameSearch, last: anomaly.name),
+        existing.copyWith(
+          name: Name(first: anomaly.nameSearch, last: anomaly.name ?? ''),
           phones: [Phone(number: anomaly.phone!)],
         ),
       );
