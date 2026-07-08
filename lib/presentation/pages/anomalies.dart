@@ -1,5 +1,6 @@
 import 'package:acl_flutter/app/anomaly_service.dart';
 import 'package:acl_flutter/domain/models/anomaly.dart';
+import 'package:acl_flutter/infrastructure/whatsapp/wpp_service.dart';
 import 'package:acl_flutter/presentation/widgets/anomaly_form.dart';
 import 'package:acl_flutter/presentation/widgets/anomaly_item.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,10 @@ class AnomaliesPage extends StatefulWidget {
   const AnomaliesPage({super.key});
 
   @override
-  State<AnomaliesPage> createState() => _TestPageState();
+  State<AnomaliesPage> createState() => _AnomaliesPageState();
 }
 
-class _TestPageState extends State<AnomaliesPage> {
+class _AnomaliesPageState extends State<AnomaliesPage> {
   final AnomalyService anomalyService = AnomalyService();
   late Future<List<Anomaly>> _future;
 
@@ -63,6 +64,18 @@ class _TestPageState extends State<AnomaliesPage> {
               padding: const EdgeInsets.all(5),
               child: Dismissible(
                 key: Key(anomalies[index].toString()),
+                background: Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.green,
+                  alignment: Alignment.centerLeft,
+                  child: Icon(Icons.chat),
+                ),
+                secondaryBackground: Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  child: const Icon(Icons.delete),
+                ),
                 onDismissed: (direction) {
                   if (direction == DismissDirection.endToStart) {
                     setState(() {
@@ -73,6 +86,8 @@ class _TestPageState extends State<AnomaliesPage> {
                 confirmDismiss: (direction) async {
                   if (direction == DismissDirection.endToStart) {
                     _confirmDismiss(anomalies[index]);
+                  } else if (direction == DismissDirection.startToEnd) {
+                    WhatsAppService.openWhatsApp(anomalies[index]);
                   }
                   return null;
                 },

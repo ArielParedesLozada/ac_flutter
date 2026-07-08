@@ -98,6 +98,18 @@ class _AnomalyNotesPageState extends State<AnomalyNotesPage> {
               padding: const EdgeInsets.all(5),
               child: Dismissible(
                 key: Key(notes[index].toString()),
+                background: Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.cyan,
+                  alignment: Alignment.centerLeft,
+                  child: Icon(Icons.remove_red_eye),
+                ),
+                secondaryBackground: Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  child: const Icon(Icons.delete),
+                ),
                 onDismissed: (direction) {
                   if (direction == DismissDirection.endToStart) {
                     setState(() {

@@ -9,23 +9,18 @@ class AnomalyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: ListTile(
-        tileColor: const Color.fromARGB(255, 199, 230, 255),
-        leading: const Icon(Icons.account_circle),
-        title: Text(anomaly.nameSearch),
-        trailing: const Icon(Icons.keyboard_arrow_down),
-        subtitle: Text(anomaly.name ?? ''),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AnomalyPage(anomaly: anomaly),
-            ),
-          ).then((_) => onReturn?.call());
-        },
-      ),
+    return ListTile(
+      tileColor: const Color.fromARGB(255, 199, 230, 255),
+      leading: const Icon(Icons.account_circle),
+      title: Text(anomaly.nameSearch),
+      trailing: const Icon(Icons.keyboard_arrow_down),
+      subtitle: Text(anomaly.name ?? ''),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AnomalyPage(anomaly: anomaly)),
+        ).then((_) => onReturn?.call());
+      },
     );
   }
 }

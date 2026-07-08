@@ -6,7 +6,8 @@ class WhatsAppService {
     if (anomaly.phone == null || anomaly.phone!.isEmpty) {
       return;
     }
-    final url = Uri.parse('https://wa.me/${anomaly.phone}?text=');
+    final phone = anomaly.phone!.replaceAll(RegExp(r'[^\d]'), '');
+    final url = Uri.parse('https://wa.me/$phone?text=');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {

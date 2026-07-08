@@ -7,14 +7,11 @@ class AnomalyNoteItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: ListTile(
-        tileColor: const Color.fromARGB(255, 202, 219, 255),
-        leading: const Icon(Icons.info),
-        title: Text(anomalyNote.content),
-        subtitle: Text(anomalyNote.anomalyName),
-      ),
+    return ListTile(
+      tileColor: const Color.fromARGB(255, 202, 219, 255),
+      leading: const Icon(Icons.info),
+      title: Text(anomalyNote.content),
+      subtitle: Text(anomalyNote.anomalyName),
     );
   }
 }
