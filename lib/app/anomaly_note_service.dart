@@ -47,4 +47,9 @@ class AnomalyNoteService {
     final anomalyNotesDb = await db.anomalyNoteRepo.searchNotes(query);
     return anomalyNotesDb.map(AnomalyNoteMapper.fromDb).toList();
   }
+
+  Future<void> deleteNote(AnomalyNote note) async {
+    final db = await AppDatabase.instance;
+    await db.anomalyNoteRepo.deleteNote(note.id!);
+  }
 }

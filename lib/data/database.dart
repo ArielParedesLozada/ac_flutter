@@ -25,6 +25,8 @@ abstract class AppDatabase extends FloorDatabase {
   }
 
   static Future<void> _createFts(sqflite.Database db, int version) async {
+    // Tabla FTS de contenido externo: los nombres de columna DEBEN coincidir
+    // con los de anomaly_notes, porque FTS relee el texto original desde ahí.
     await db.execute('''
       CREATE VIRTUAL TABLE IF NOT EXISTS anomaly_notes_fts
       USING fts4(
@@ -39,16 +41,21 @@ abstract class AppDatabase extends FloorDatabase {
         VALUES (new.id, new.anomaly_name, new.content);
       END
     ''');
+    // Con contenido externo el borrado del índice se hace con un DELETE normal
+    // por docid, en un trigger BEFORE para que la fila aún exista y FTS pueda
+    // leer los términos a eliminar.
     await db.execute('''
-      CREATE TRIGGER anomaly_notes_ad AFTER DELETE ON anomaly_notes BEGIN
-        INSERT INTO anomaly_notes_fts(anomaly_notes_fts, docid, anomaly_name, content)
-        VALUES ('delete', old.id, old.anomaly_name, old.content);
+      CREATE TRIGGER anomaly_notes_ad BEFORE DELETE ON anomaly_notes BEGIN
+        DELETE FROM anomaly_notes_fts WHERE docid = old.id;
+      END
+    ''');
+    await db.execute('''
+      CREATE TRIGGER anomaly_notes_bu BEFORE UPDATE ON anomaly_notes BEGIN
+        DELETE FROM anomaly_notes_fts WHERE docid = old.id;
       END
     ''');
     await db.execute('''
       CREATE TRIGGER anomaly_notes_au AFTER UPDATE ON anomaly_notes BEGIN
-        INSERT INTO anomaly_notes_fts(anomaly_notes_fts, docid, anomaly_name, content)
-        VALUES ('delete', old.id, old.anomaly_name, old.content);
         INSERT INTO anomaly_notes_fts(docid, anomaly_name, content)
         VALUES (new.id, new.anomaly_name, new.content);
       END

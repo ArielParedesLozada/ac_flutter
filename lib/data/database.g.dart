@@ -387,8 +387,8 @@ class _$AnomalyNoteRepo extends AnomalyNoteRepo {
 
   @override
   Future<void> deleteNote(int id) async {
-    await _queryAdapter
-        .queryNoReturn('DELETE FROM anomalies WHERE id = ?1', arguments: [id]);
+    await _queryAdapter.queryNoReturn('DELETE FROM anomaly_notes WHERE id = ?1',
+        arguments: [id]);
   }
 
   @override

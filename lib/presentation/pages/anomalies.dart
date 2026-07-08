@@ -64,12 +64,16 @@ class _TestPageState extends State<AnomaliesPage> {
               child: Dismissible(
                 key: Key(anomalies[index].toString()),
                 onDismissed: (direction) {
-                  setState(() {
-                    _future = anomalyService.getAnomalies();
-                  });
+                  if (direction == DismissDirection.endToStart) {
+                    setState(() {
+                      _future = anomalyService.getAnomalies();
+                    });
+                  }
                 },
                 confirmDismiss: (direction) async {
-                  _confirmDismiss(anomalies[index]);
+                  if (direction == DismissDirection.endToStart) {
+                    _confirmDismiss(anomalies[index]);
+                  }
                   return null;
                 },
                 child: AnomalyItem(

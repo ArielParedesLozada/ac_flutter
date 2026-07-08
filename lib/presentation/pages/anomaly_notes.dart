@@ -90,17 +90,60 @@ class _AnomalyNotesPageState extends State<AnomalyNotesPage> {
           }
           final notes = snapshot.data!;
           if (notes.isEmpty) {
-            return const Center(child: Text('No hay anomalías registradas'));
+            return const Center(child: Text('No hay notas registradas'));
           }
           return ListView.builder(
             itemCount: notes.length,
             itemBuilder: (context, index) => Container(
               padding: const EdgeInsets.all(5),
-              child: AnomalyNoteItem(anomalyNote: notes[index]),
+              child: Dismissible(
+                key: Key(notes[index].toString()),
+                onDismissed: (direction) {
+                  if (direction == DismissDirection.endToStart) {
+                    setState(() {
+                      _future = anomalyNotesService.getAllAnomalyNotes();
+                    });
+                  }
+                },
+                confirmDismiss: (direction) async {
+                  if (direction == DismissDirection.endToStart) {
+                    _confirmDismiss(notes[index]);
+                  }
+                  return null;
+                },
+                child: AnomalyNoteItem(anomalyNote: notes[index]),
+              ),
             ),
           );
         },
       ),
+    );
+  }
+
+  Future<void> _confirmDismiss(AnomalyNote note) async {
+    return await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Confirmar"),
+          content: const Text("¿Estás seguro que quieres eliminar?"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await anomalyNotesService.deleteNote(note);
+                if (!context.mounted) return;
+                Navigator.pop(dialogContext);
+                _refresh();
+              },
+              child: const Text("ELIMINAR"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("CANCELAR"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

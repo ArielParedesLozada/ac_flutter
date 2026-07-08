@@ -23,6 +23,6 @@ abstract class AnomalyNoteRepo {
   @Update(onConflict: OnConflictStrategy.abort)
   Future<int> updateNote(AnomalyNoteDb anomalyNote);
 
-  @Query('DELETE FROM anomalies WHERE id = :id')
+  @Query('DELETE FROM anomaly_notes WHERE id = :id')
   Future<void> deleteNote(int id);
 }
