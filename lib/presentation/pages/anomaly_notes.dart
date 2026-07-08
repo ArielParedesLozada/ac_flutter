@@ -2,6 +2,7 @@ import 'package:acl_flutter/app/anomaly_note_service.dart';
 import 'package:acl_flutter/app/anomaly_service.dart';
 import 'package:acl_flutter/domain/models/anomaly_note.dart';
 import 'package:acl_flutter/presentation/widgets/anomaly_note_form.dart';
+import 'package:acl_flutter/presentation/widgets/anomaly_note_full.dart';
 import 'package:acl_flutter/presentation/widgets/anomaly_note_item.dart';
 import 'package:flutter/material.dart';
 
@@ -115,11 +116,13 @@ class _AnomalyNotesPageState extends State<AnomalyNotesPage> {
                     setState(() {
                       _future = anomalyNotesService.getAllAnomalyNotes();
                     });
-                  }
+                  } else if (direction == DismissDirection.startToEnd) {}
                 },
                 confirmDismiss: (direction) async {
                   if (direction == DismissDirection.endToStart) {
                     _confirmDismiss(notes[index]);
+                  } else if (direction == DismissDirection.startToEnd) {
+                    await AnomalyNoteFull.show(context, notes[index], _refresh);
                   }
                   return null;
                 },
@@ -158,6 +161,7 @@ class _AnomalyNotesPageState extends State<AnomalyNotesPage> {
       },
     );
   }
+
 }
 
 class _CustomSearchDelegate extends SearchDelegate {

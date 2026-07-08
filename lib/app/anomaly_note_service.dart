@@ -48,6 +48,21 @@ class AnomalyNoteService {
     return anomalyNotesDb.map(AnomalyNoteMapper.fromDb).toList();
   }
 
+  Future<void> updateNoteContent(AnomalyNote note, String newContent) async {
+    final db = await AppDatabase.instance;
+    final updated = AnomalyNoteMapper.fromDomain(
+      AnomalyNote(
+        id: note.id,
+        anomalyId: note.anomalyId,
+        anomalyName: note.anomalyName,
+        content: newContent,
+        createdAt: note.createdAt,
+        updatedAt: DateTime.now(),
+      ),
+    );
+    await db.anomalyNoteRepo.updateNote(updated);
+  }
+
   Future<void> deleteNote(AnomalyNote note) async {
     final db = await AppDatabase.instance;
     await db.anomalyNoteRepo.deleteNote(note.id!);
