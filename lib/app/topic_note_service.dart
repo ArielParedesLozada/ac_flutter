@@ -6,6 +6,12 @@ import 'package:acl_flutter/domain/models/topic_note.dart';
 import 'package:acl_flutter/infrastructure/mapper/topic_note_mapper.dart';
 
 class TopicNoteService {
+  Future<List<TopicNote>> getAllTopicNotes() async {
+    final db = await AppDatabase.instance;
+    final notesDb = await db.topicNoteRepo.getAllTopicNotes();
+    return notesDb.map(TopicNoteMapper.fromDb).toList();
+  }
+
   Future<List<TopicNote>> getNotesByTopicId(int topicId) async {
     final db = await AppDatabase.instance;
     final notesDb = await db.topicNoteRepo.getNotesByTopicId(topicId);

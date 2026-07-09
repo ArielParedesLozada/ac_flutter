@@ -1,7 +1,9 @@
+import 'package:acl_flutter/app/topic_note_service.dart';
 import 'package:acl_flutter/app/topic_service.dart';
 import 'package:acl_flutter/domain/models/topic.dart';
 import 'package:acl_flutter/presentation/widgets/topic_form.dart';
 import 'package:acl_flutter/presentation/widgets/topic_item.dart';
+import 'package:acl_flutter/presentation/widgets/topic_note_form.dart';
 import 'package:flutter/material.dart';
 
 class TopicsPage extends StatefulWidget {
@@ -13,6 +15,7 @@ class TopicsPage extends StatefulWidget {
 
 class _TopicsPageState extends State<TopicsPage> {
   final TopicService _topicService = TopicService();
+  final TopicNoteService _noteService = TopicNoteService();
   late Future<List<Topic>> _future;
 
   @override
@@ -68,9 +71,9 @@ class _TopicsPageState extends State<TopicsPage> {
                 key: Key(topics[index].id.toString()),
                 background: Container(
                   padding: const EdgeInsets.all(20),
-                  color: Colors.red,
+                  color: Colors.green,
                   alignment: Alignment.centerLeft,
-                  child: const Icon(Icons.delete),
+                  child: const Icon(Icons.note_add),
                 ),
                 secondaryBackground: Container(
                   padding: const EdgeInsets.all(20),
@@ -78,8 +81,12 @@ class _TopicsPageState extends State<TopicsPage> {
                   alignment: Alignment.centerRight,
                   child: const Icon(Icons.delete),
                 ),
-                confirmDismiss: (_) async {
-                  await _confirmDelete(topics[index]);
+                confirmDismiss: (direction) async {
+                  if (direction == DismissDirection.startToEnd) {
+                    _showAddNoteDialog(topics[index]);
+                  } else {
+                    await _confirmDelete(topics[index]);
+                  }
                   return null;
                 },
                 onDismissed: (_) => _refresh(),
@@ -91,6 +98,39 @@ class _TopicsPageState extends State<TopicsPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showAddNoteDialog(Topic topic) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Nueva nota',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                TopicNoteForm(
+                  initialTopic: topic,
+                  onSubmit: (dto) async {
+                    await _noteService.createNote(dto);
+                    if (!context.mounted) return;
+                    Navigator.pop(dialogContext);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
