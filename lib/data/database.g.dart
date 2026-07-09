@@ -76,6 +76,10 @@ class _$AppDatabase extends AppDatabase {
 
   AnomalyNoteRepo? _anomalyNoteRepoInstance;
 
+  TopicRepo? _topicRepoInstance;
+
+  TopicNoteRepo? _topicNoteRepoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -102,6 +106,10 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `anomaly_notes` (`id` INTEGER, `anomaly_id` INTEGER NOT NULL, `anomaly_name` TEXT NOT NULL, `content` TEXT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT, FOREIGN KEY (`anomaly_id`) REFERENCES `anomalies` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `topics` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT, `start_date` TEXT, `end_date` TEXT, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `topic_notes` (`id` INTEGER, `topic_id` INTEGER NOT NULL, `topic_name` TEXT NOT NULL, `content` TEXT NOT NULL, `start_date` TEXT, `end_date` TEXT, `related_entity_id` INTEGER, FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
+        await database.execute(
             'CREATE UNIQUE INDEX `index_anomalies_code` ON `anomalies` (`code`)');
 
         await callback?.onCreate?.call(database, version);
@@ -119,6 +127,16 @@ class _$AppDatabase extends AppDatabase {
   AnomalyNoteRepo get anomalyNoteRepo {
     return _anomalyNoteRepoInstance ??=
         _$AnomalyNoteRepo(database, changeListener);
+  }
+
+  @override
+  TopicRepo get topicRepo {
+    return _topicRepoInstance ??= _$TopicRepo(database, changeListener);
+  }
+
+  @override
+  TopicNoteRepo get topicNoteRepo {
+    return _topicNoteRepoInstance ??= _$TopicNoteRepo(database, changeListener);
   }
 }
 
@@ -401,5 +419,193 @@ class _$AnomalyNoteRepo extends AnomalyNoteRepo {
   Future<int> updateNote(AnomalyNoteDb anomalyNote) {
     return _anomalyNoteDbUpdateAdapter.updateAndReturnChangedRows(
         anomalyNote, OnConflictStrategy.abort);
+  }
+}
+
+class _$TopicRepo extends TopicRepo {
+  _$TopicRepo(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _topicDbInsertionAdapter = InsertionAdapter(
+            database,
+            'topics',
+            (TopicDb item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'start_date': item.startDate,
+                  'end_date': item.endDate
+                }),
+        _topicDbUpdateAdapter = UpdateAdapter(
+            database,
+            'topics',
+            ['id'],
+            (TopicDb item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'start_date': item.startDate,
+                  'end_date': item.endDate
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TopicDb> _topicDbInsertionAdapter;
+
+  final UpdateAdapter<TopicDb> _topicDbUpdateAdapter;
+
+  @override
+  Future<List<TopicDb>> getAllTopics() async {
+    return _queryAdapter.queryList('SELECT * FROM topics ORDER BY name',
+        mapper: (Map<String, Object?> row) => TopicDb(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            startDate: row['start_date'] as String?,
+            endDate: row['end_date'] as String?));
+  }
+
+  @override
+  Future<TopicDb?> getTopicById(int id) async {
+    return _queryAdapter.query('SELECT * FROM topics WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => TopicDb(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            startDate: row['start_date'] as String?,
+            endDate: row['end_date'] as String?),
+        arguments: [id]);
+  }
+
+  @override
+  Future<List<TopicDb>> searchTopics(String query) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM topics WHERE name LIKE ?1 ORDER BY name',
+        mapper: (Map<String, Object?> row) => TopicDb(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            description: row['description'] as String?,
+            startDate: row['start_date'] as String?,
+            endDate: row['end_date'] as String?),
+        arguments: [query]);
+  }
+
+  @override
+  Future<void> deleteTopic(int id) async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM topics WHERE id = ?1', arguments: [id]);
+  }
+
+  @override
+  Future<int> createTopic(TopicDb topic) {
+    return _topicDbInsertionAdapter.insertAndReturnId(
+        topic, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateTopic(TopicDb topic) {
+    return _topicDbUpdateAdapter.updateAndReturnChangedRows(
+        topic, OnConflictStrategy.abort);
+  }
+}
+
+class _$TopicNoteRepo extends TopicNoteRepo {
+  _$TopicNoteRepo(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _topicNoteDbInsertionAdapter = InsertionAdapter(
+            database,
+            'topic_notes',
+            (TopicNoteDb item) => <String, Object?>{
+                  'id': item.id,
+                  'topic_id': item.topicId,
+                  'topic_name': item.topicName,
+                  'content': item.content,
+                  'start_date': item.startDate,
+                  'end_date': item.endDate,
+                  'related_entity_id': item.relatedEntityId
+                }),
+        _topicNoteDbUpdateAdapter = UpdateAdapter(
+            database,
+            'topic_notes',
+            ['id'],
+            (TopicNoteDb item) => <String, Object?>{
+                  'id': item.id,
+                  'topic_id': item.topicId,
+                  'topic_name': item.topicName,
+                  'content': item.content,
+                  'start_date': item.startDate,
+                  'end_date': item.endDate,
+                  'related_entity_id': item.relatedEntityId
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TopicNoteDb> _topicNoteDbInsertionAdapter;
+
+  final UpdateAdapter<TopicNoteDb> _topicNoteDbUpdateAdapter;
+
+  @override
+  Future<List<TopicNoteDb>> getAllTopicNotes() async {
+    return _queryAdapter.queryList('SELECT * FROM topic_notes',
+        mapper: (Map<String, Object?> row) => TopicNoteDb(
+            id: row['id'] as int?,
+            topicId: row['topic_id'] as int,
+            topicName: row['topic_name'] as String,
+            content: row['content'] as String,
+            startDate: row['start_date'] as String?,
+            endDate: row['end_date'] as String?,
+            relatedEntityId: row['related_entity_id'] as int?));
+  }
+
+  @override
+  Future<List<TopicNoteDb>> getNotesByTopicId(int topicId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM topic_notes WHERE topic_id = ?1 ORDER BY start_date',
+        mapper: (Map<String, Object?> row) => TopicNoteDb(
+            id: row['id'] as int?,
+            topicId: row['topic_id'] as int,
+            topicName: row['topic_name'] as String,
+            content: row['content'] as String,
+            startDate: row['start_date'] as String?,
+            endDate: row['end_date'] as String?,
+            relatedEntityId: row['related_entity_id'] as int?),
+        arguments: [topicId]);
+  }
+
+  @override
+  Future<List<TopicNoteDb>> searchNotes(String query) async {
+    return _queryAdapter.queryList(
+        'SELECT tn.* FROM topic_notes tn INNER JOIN topic_notes_fts fts ON tn.id = fts.docid WHERE topic_notes_fts MATCH ?1 ORDER BY CASE WHEN tn.end_date IS NULL THEN 1 ELSE 0 END, tn.end_date ASC',
+        mapper: (Map<String, Object?> row) => TopicNoteDb(id: row['id'] as int?, topicId: row['topic_id'] as int, topicName: row['topic_name'] as String, content: row['content'] as String, startDate: row['start_date'] as String?, endDate: row['end_date'] as String?, relatedEntityId: row['related_entity_id'] as int?),
+        arguments: [query]);
+  }
+
+  @override
+  Future<void> deleteNote(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM topic_notes WHERE id = ?1',
+        arguments: [id]);
+  }
+
+  @override
+  Future<int> createNote(TopicNoteDb note) {
+    return _topicNoteDbInsertionAdapter.insertAndReturnId(
+        note, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateNote(TopicNoteDb note) {
+    return _topicNoteDbUpdateAdapter.updateAndReturnChangedRows(
+        note, OnConflictStrategy.abort);
   }
 }
