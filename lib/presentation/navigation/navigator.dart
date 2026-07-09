@@ -29,12 +29,12 @@ class NavList {
       page: const AnomalyNotesPage(),
     ),
     NavDestination(
-      icon: Icons.home_outlined,
+      icon: Icons.check_circle_outline,
       label: 'To do',
       page: const TopicNotesPage(),
     ),
     NavDestination(
-      icon: Icons.home_outlined,
+      icon: Icons.topic_sharp,
       label: 'Temas',
       page: const TopicsPage(),
     ),
