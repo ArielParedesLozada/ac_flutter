@@ -47,15 +47,20 @@ class _TopicNoteFormState extends State<TopicNoteForm> {
     super.dispose();
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, {bool withTime = false}) {
     final d = date.day.toString().padLeft(2, '0');
     final m = date.month.toString().padLeft(2, '0');
-    return '$d/$m/${date.year}';
+    final base = '$d/$m/${date.year}';
+    if (!withTime) return base;
+    final h = date.hour.toString().padLeft(2, '0');
+    final min = date.minute.toString().padLeft(2, '0');
+    return '$base $h:$min';
   }
 
   Future<void> _pickDate({
     required DateTime? current,
     required void Function(DateTime?) onPicked,
+    bool withTime = false,
   }) async {
     final picked = await showDatePicker(
       context: context,
@@ -63,18 +68,34 @@ class _TopicNoteFormState extends State<TopicNoteForm> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null) setState(() => onPicked(picked));
+    if (picked == null) return;
+    if (!withTime) {
+      setState(() => onPicked(picked));
+      return;
+    }
+    if (!mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: current != null
+          ? TimeOfDay(hour: current.hour, minute: current.minute)
+          : TimeOfDay.now(),
+    );
+    if (time == null) return;
+    setState(() => onPicked(
+          DateTime(picked.year, picked.month, picked.day, time.hour, time.minute),
+        ));
   }
 
   Widget _buildDateField({
     required String label,
     required DateTime? date,
     required void Function(DateTime?) onPicked,
+    bool withTime = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: InkWell(
-        onTap: () => _pickDate(current: date, onPicked: onPicked),
+        onTap: () => _pickDate(current: date, onPicked: onPicked, withTime: withTime),
         borderRadius: BorderRadius.circular(4),
         child: InputDecorator(
           decoration: InputDecoration(
@@ -84,10 +105,10 @@ class _TopicNoteFormState extends State<TopicNoteForm> {
                     icon: const Icon(Icons.clear, size: 18),
                     onPressed: () => setState(() => onPicked(null)),
                   )
-                : const Icon(Icons.calendar_today, size: 18),
+                : Icon(withTime ? Icons.access_time : Icons.calendar_today, size: 18),
           ),
           child: Text(
-            date != null ? _formatDate(date) : '',
+            date != null ? _formatDate(date, withTime: withTime) : '',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
@@ -145,6 +166,7 @@ class _TopicNoteFormState extends State<TopicNoteForm> {
             label: 'Fecha de fin',
             date: _endDate,
             onPicked: (d) => _endDate = d,
+            withTime: true,
           ),
           const SizedBox(height: 20),
           SizedBox(
