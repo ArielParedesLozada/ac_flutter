@@ -4,6 +4,7 @@ import 'package:acl_flutter/data/database.dart';
 import 'package:acl_flutter/data/models/topic_note_db.dart';
 import 'package:acl_flutter/domain/models/topic_note.dart';
 import 'package:acl_flutter/infrastructure/mapper/topic_note_mapper.dart';
+import 'package:acl_flutter/infrastructure/notifications/notification_service.dart';
 
 class TopicNoteService {
   Future<List<TopicNote>> getAllTopicNotes() async {
@@ -39,7 +40,7 @@ class TopicNoteService {
       ),
     );
     final id = await db.topicNoteRepo.createNote(noteDb);
-    return TopicNoteMapper.fromDb(
+    final created = TopicNoteMapper.fromDb(
       TopicNoteDb(
         id: id,
         topicId: noteDb.topicId,
@@ -50,25 +51,27 @@ class TopicNoteService {
         relatedEntityId: noteDb.relatedEntityId,
       ),
     );
+    await NotificationService.scheduleNotificationForTopicNote(created);
+    return created;
   }
 
   Future<void> updateNote(TopicNote note, TopicNoteUpdateDto dto) async {
     final db = await AppDatabase.instance;
-    final updated = TopicNoteMapper.fromDomain(
-      TopicNote(
-        id: note.id,
-        topicId: note.topicId,
-        topicName: note.topicName,
-        content: dto.content ?? note.content,
-        startDate: dto.startDate ?? note.startDate,
-        endDate: dto.endDate ?? note.endDate,
-        relatedEntityId: dto.relatedEntityId ?? note.relatedEntityId,
-      ),
+    final updatedNote = TopicNote(
+      id: note.id,
+      topicId: note.topicId,
+      topicName: note.topicName,
+      content: dto.content ?? note.content,
+      startDate: dto.startDate ?? note.startDate,
+      endDate: dto.endDate ?? note.endDate,
+      relatedEntityId: dto.relatedEntityId ?? note.relatedEntityId,
     );
-    await db.topicNoteRepo.updateNote(updated);
+    await db.topicNoteRepo.updateNote(TopicNoteMapper.fromDomain(updatedNote));
+    await NotificationService.updateNotificationForNote(updatedNote);
   }
 
   Future<void> deleteNote(TopicNote note) async {
+    await NotificationService.cancelNotificationsForNote(note);
     final db = await AppDatabase.instance;
     await db.topicNoteRepo.deleteNote(note.id!);
   }

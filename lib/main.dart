@@ -1,5 +1,6 @@
 import 'package:acl_flutter/infrastructure/auth/auth_service.dart';
 import 'package:acl_flutter/infrastructure/contacts/contact_service.dart';
+import 'package:acl_flutter/infrastructure/notifications/notification_service.dart';
 import 'package:acl_flutter/presentation/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +41,9 @@ class _MainAppState extends State<MainApp> {
           authenticated ? AuthState.authenticated : AuthState.notAuthenticated;
     });
     if (!authenticated) return;
+
+    await NotificationService.initNotifications();
+    await NotificationService.requestNotificationsPermission();
 
     final status = await ContactService.requestPermission();
     if (!mounted) return;
