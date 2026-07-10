@@ -16,6 +16,9 @@ migrate_working_dir/
 .env/
 .android/
 
+# SQL Stuff
+sql/
+
 # IntelliJ related
 *.iml
 *.ipr
