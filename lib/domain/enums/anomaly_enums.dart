@@ -1,6 +1,6 @@
 // Tipos
 enum AnomalyType {
-  pdI, // PersonOfInterest
+  pdi, // PersonOfInterest
   al, // AnomalousLocation
   kte, // KnownThreatEntity
 }
@@ -8,16 +8,18 @@ enum AnomalyType {
 // Clases
 // Tu sabes que significa esto
 enum AnomalyClass {
-  safe, // 1
-  euclid, // 2
-  keter,
-  thaumiel,
+  principalis, // 0
+  thaumiel, // 1
+  safe, // 2
+  euclid, // 3
+  keter, // 4
   apollyon, // 5
 }
 
 // Cuanta informacion se tiene
 enum AnomalyInfo {
-  cernunnos, // No information
+  caligo, // No information
+  cernunnos, // basic information
   hiemal, // little information
   tiamat, // average information
   ticonderoga, // predictable behaviour
@@ -26,6 +28,7 @@ enum AnomalyInfo {
 
 // Esto para el poder
 enum AnomalyDisruption {
+  nikeri, // No power at all
   dark, // Not much power
   vlam,
   keneq,
@@ -35,7 +38,8 @@ enum AnomalyDisruption {
 
 // Hostilidad
 enum AnomalyHostility {
-  notice, // Not hostile
+  ignore, // Not hostile
+  notice,
   caution,
   warning,
   danger,
